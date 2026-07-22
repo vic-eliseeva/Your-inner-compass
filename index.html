@@ -1,0 +1,2177 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Your Inner Compass — Interactive Values Exercise</title>
+  <style>
+    :root {
+      --ink: #17202A;
+      --muted: #657181;
+      --paper: #FBF6EA;
+      --paper-2: #EFE5D4;
+      --white: #FFFFFF;
+      --line: rgba(23, 32, 42, 0.12);
+      --line-strong: rgba(23, 32, 42, 0.22);
+      --accent: #768E78;
+      --accent-2: #FCC88A;
+      --danger: #8F4F50;
+      --success: #C6C09C;
+      --warning: #B97834;
+      --shadow: 0 18px 48px rgba(31, 40, 52, 0.10);
+      --shadow-soft: 0 9px 24px rgba(31, 40, 52, 0.08);
+      --radius: 24px;
+      --radius-sm: 16px;
+      --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --serif: Georgia, "Times New Roman", serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: var(--font);
+      background:
+        radial-gradient(circle at top left, rgba(252, 200, 138, .18), transparent 34rem),
+        radial-gradient(circle at 88% 7%, rgba(118, 142, 120, .12), transparent 31rem),
+        linear-gradient(135deg, var(--paper), #F7EFDF 58%, #EFE4D2);
+    }
+
+    button, input, select { font-family: inherit; }
+    button { cursor: pointer; }
+    .hidden { display: none !important; }
+
+    .app-shell {
+      width: min(1280px, calc(100vw - 28px));
+      margin: 0 auto;
+      padding: 24px 0 56px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .compass-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #768E78, #B7CBDB);
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 22px;
+      box-shadow: var(--shadow-soft);
+      flex: 0 0 auto;
+    }
+    .brand-text strong { display: block; font-size: 15px; letter-spacing: .03em; }
+    .brand-text span { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
+    .top-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
+
+    .btn {
+      border: 1px solid transparent;
+      background: var(--accent);
+      color: #fff;
+      padding: 11px 16px;
+      border-radius: 999px;
+      font-weight: 760;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 9px 24px rgba(31, 58, 95, .18);
+      transition: transform .16s ease, box-shadow .16s ease, background .16s ease, opacity .16s ease;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 13px 28px rgba(31, 58, 95, .22); }
+    .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
+    .btn.secondary { color: var(--ink); background: rgba(255,255,255,.74); border-color: var(--line); box-shadow: none; }
+    .btn.ghost { color: var(--muted); background: transparent; border-color: var(--line); box-shadow: none; }
+    .btn.danger { background: var(--danger); }
+    .btn.success { background: var(--success); }
+    .btn.warning { background: var(--warning); }
+    #completeBtn {
+      background: #2E3B2B;
+      color: #FFFFFF;
+      box-shadow: 0 12px 26px rgba(46, 59, 43, .24);
+    }
+    #completeBtn:hover {
+      background: #24311F;
+      box-shadow: 0 15px 30px rgba(46, 59, 43, .30);
+    }
+    #completeBtn:disabled {
+      background: #7E8B79;
+      color: rgba(255,255,255,.82);
+      opacity: .45;
+      box-shadow: none;
+    }
+    .btn.big { font-size: 16px; padding: 15px 24px; margin-top: 26px; }
+
+    .panel {
+      background: rgba(255,255,255,.73);
+      border: 1px solid rgba(255,255,255,.76);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    .hero {
+      min-height: 72vh;
+      display: grid;
+      grid-template-columns: 1.08fr .92fr;
+      gap: 28px;
+      align-items: center;
+    }
+    .hero-copy { padding: clamp(28px, 5vw, 58px); }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--accent);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .13em;
+      font-size: 11px;
+      margin-bottom: 14px;
+    }
+    .eyebrow::before { content: ""; width: 24px; height: 1px; background: var(--accent-2); }
+    h1 {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(48px, 8vw, 82px);
+      line-height: .92;
+      letter-spacing: -.06em;
+    }
+    .subtitle {
+      margin: 16px 0 0;
+      color: var(--accent);
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: clamp(20px, 3vw, 30px);
+    }
+    .byline { margin: 12px 0 0; color: var(--muted); font-size: 14px; }
+    .intro-text { margin: 26px 0 0; color: #3D4652; line-height: 1.72; max-width: 64ch; font-size: 16px; }
+    .hero-steps { padding: 28px; display: grid; gap: 14px; }
+    .mini-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow-soft);
+      padding: 18px 18px 18px 22px;
+      position: relative;
+      overflow: hidden;
+    }
+    .mini-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 8px;
+      background: var(--card-color, var(--accent));
+    }
+    .mini-card span { display: block; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 8px; }
+    .mini-card strong { font-size: 22px; font-family: var(--serif); }
+    .mini-card p { margin: 8px 0 0; line-height: 1.48; color: #586272; font-size: 14px; }
+
+    .step-head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 18px;
+      align-items: end;
+      margin: 22px 0 18px;
+    }
+    .step-head h2 {
+      margin: 0 0 9px;
+      font-family: var(--serif);
+      font-size: clamp(36px, 5vw, 56px);
+      line-height: 1;
+      letter-spacing: -.045em;
+    }
+    .step-head p { margin: 0; color: var(--muted); line-height: 1.55; max-width: 760px; }
+
+    .progress-box { padding: 16px 18px; }
+    .progress-steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+    .progress-step {
+      min-height: 8px;
+      border-radius: 999px;
+      background: rgba(23, 32, 42, .10);
+      overflow: hidden;
+      position: relative;
+    }
+    .progress-step.done::before, .progress-step.active::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    }
+    .progress-labels { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 9px; }
+    .progress-labels span { font-size: 11px; color: var(--muted); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .progress-labels span.active { color: var(--accent); font-weight: 800; }
+
+    .board-layout {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 20px;
+      align-items: start;
+    }
+    .board-panel { padding: 18px; }
+    .side-panel { padding: 18px; position: sticky; top: 16px; }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: minmax(180px, 1fr) minmax(150px, 210px) minmax(140px, 190px) auto auto;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .input, .select {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.85);
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 11px 14px;
+      outline: none;
+      font-size: 14px;
+    }
+    .input:focus, .select:focus { border-color: rgba(31, 58, 95, .42); box-shadow: 0 0 0 4px rgba(31, 58, 95, .08); }
+
+    .tile-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 14px;
+      align-items: stretch;
+    }
+    .value-tile {
+      --tile-color: var(--accent);
+      --tile-ink: #17202A;
+      position: relative;
+      min-height: 190px;
+      border: none;
+      border-radius: 10px;
+      padding: 0;
+      background: transparent;
+      color: var(--tile-ink);
+      box-shadow: 0 6px 12px rgba(31, 40, 52, .06);
+      transition: transform .13s ease, opacity .16s ease, filter .16s ease;
+      overflow: visible;
+      text-align: left;
+      perspective: 1200px;
+    }
+    .value-tile:hover { transform: translateY(-2px); }
+    .tile-inner {
+      position: relative;
+      display: block;
+      width: 100%;
+      min-height: 190px;
+      transform-style: preserve-3d;
+      transition: transform .56s cubic-bezier(.22, 1, .36, 1);
+      border-radius: 10px;
+    }
+    .value-tile.flipped .tile-inner { transform: rotateY(180deg); }
+    .tile-face {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 8px;
+      min-height: 190px;
+      padding: 14px 14px 13px;
+      border-radius: 10px;
+      overflow: hidden;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      transform: translateZ(0);
+      border: none;
+      background: var(--tile-color);
+      box-shadow: 0 10px 18px rgba(31, 40, 52, .09);
+      transition: opacity .18s ease;
+    }
+    .tile-front { transform: rotateY(0deg) translateZ(.01px); }
+    .tile-back {
+      transform: rotateY(180deg) translateZ(.01px);
+      background: color-mix(in srgb, var(--tile-color) 86%, white);
+    }
+    .value-tile .cat-pill {
+      justify-self: start;
+      display: inline-flex;
+      max-width: 100%;
+      color: rgba(50, 43, 39, .72);
+      background: rgba(255,255,255,.34);
+      border: 1px solid rgba(255,255,255,.42);
+      border-radius: 999px;
+      padding: 4px 7px;
+      font-weight: 820;
+      font-size: 8.1px;
+      line-height: 1.05;
+      text-transform: uppercase;
+      letter-spacing: .065em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .value-tile strong {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      align-self: stretch;
+      height: 100%;
+      text-align: center;
+      font-family: var(--serif);
+      font-size: clamp(22px, 1.95vw, 27px);
+      line-height: 1.04;
+      letter-spacing: -.034em;
+      word-break: normal;
+      color: var(--tile-ink);
+      padding: 0 9px 4px;
+    }
+    .tile-back p {
+      grid-row: 1 / 4;
+      align-self: stretch;
+      justify-self: stretch;
+      min-height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      color: rgba(35, 31, 28, .88);
+      line-height: 1.34;
+      font-size: 15.4px;
+      padding: 22px 20px 28px;
+      text-align: center;
+    }
+    .tile-actions { min-height: 0; }
+    .state-label {
+      position: absolute;
+      left: 12px;
+      bottom: 10px;
+      max-width: calc(100% - 58px);
+      color: rgba(23, 32, 42, .72);
+      font-weight: 820;
+      font-size: 10.7px;
+      line-height: 1;
+    }
+    .state-label:empty { display: none; }
+    .flip-btn {
+      position: absolute;
+      right: 10px;
+      bottom: 9px;
+      width: 29px;
+      height: 29px;
+      border-radius: 999px;
+      border: 1px solid rgba(23,32,42,.16);
+      background: rgba(255,255,255,.46);
+      color: rgba(35,31,28,.78);
+      font-weight: 900;
+      line-height: 1;
+      display: inline-grid;
+      place-items: center;
+      padding: 0;
+      font-size: 14px;
+      box-shadow: 0 4px 10px rgba(23, 32, 42, .07);
+    }
+    .flip-btn:hover { background: rgba(255,255,255,.72); transform: translateY(-1px); }
+    .back-flip { font-size: 15px; }
+    .value-tile.selected .tile-face {
+      background: #2E3B2B;
+      box-shadow: 0 16px 30px rgba(20, 24, 20, .22);
+    }
+    .value-tile.selected strong,
+    .value-tile.selected .tile-back p,
+    .value-tile.selected .cat-pill,
+    .value-tile.selected .state-label,
+    .value-tile.selected .flip-btn {
+      color: #FFFFFF;
+    }
+    .value-tile.selected .cat-pill {
+      background: rgba(255,255,255,.16);
+      border-color: rgba(255,255,255,.18);
+    }
+    .value-tile.selected .flip-btn {
+      background: rgba(255,255,255,.12);
+      border-color: rgba(255,255,255,.16);
+      box-shadow: none;
+    }
+    .value-tile.selected .state-label::before { content: "✓ "; }
+    .value-tile.eliminated {
+      opacity: .31;
+      filter: grayscale(.08) saturate(.65);
+    }
+    .value-tile.eliminated .tile-face {
+      box-shadow: 0 6px 10px rgba(31, 40, 52, .04);
+    }
+    .value-tile.eliminated .state-label {
+      color: rgba(23,32,42,.82);
+      background: rgba(255,255,255,.50);
+      border: 1px solid rgba(23,32,42,.12);
+      border-radius: 999px;
+      padding: 4px 7px;
+    }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px; }
+    .stat {
+      background: rgba(255,255,255,.72);
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      padding: 12px;
+    }
+    .stat span { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+    .stat strong { display: block; font-family: var(--serif); font-size: 27px; line-height: 1; margin-top: 5px; }
+    .round-card {
+      background: rgba(255,255,255,.64);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+    .round-card h3 { margin: 0 0 8px; font-size: 15px; }
+    .round-card p { margin: 0; color: var(--muted); line-height: 1.48; font-size: 13px; }
+    .round-card .small-note { margin-top: 10px; font-size: 12px; color: var(--warning); font-weight: 700; }
+    .side-actions { display: grid; gap: 9px; margin: 14px 0; }
+    .side-actions .btn { width: 100%; }
+
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px 12px;
+      margin-top: 14px;
+    }
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      color: #3D4652;
+      font-size: 12.2px;
+      min-width: 0;
+    }
+    .legend-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      background: var(--dot);
+      flex: 0 0 auto;
+      box-shadow: 0 2px 6px rgba(31, 40, 52, .10);
+    }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 30;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 18px;
+      padding: 13px 15px;
+      box-shadow: var(--shadow);
+      max-width: 360px;
+      font-weight: 760;
+      transform: translateY(18px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s ease, transform .18s ease;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      background: rgba(23, 32, 42, .38);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      backdrop-filter: blur(6px);
+    }
+    .modal-backdrop.active { display: flex; }
+    .modal {
+      width: min(520px, 100%);
+      background: #fff;
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.82);
+    }
+    .modal-top { height: 10px; background: var(--modal-color, var(--accent)); }
+    .modal-body { padding: 26px; }
+    .modal .cat-pill { display: inline-flex; color: var(--modal-color); background: color-mix(in srgb, var(--modal-color) 11%, white); border: 1px solid color-mix(in srgb, var(--modal-color) 24%, white); border-radius: 999px; padding: 5px 9px; font-size: 10px; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+    .modal h3 { margin: 14px 0 10px; font-family: var(--serif); font-size: 34px; letter-spacing: -.04em; }
+    .modal p { margin: 0; color: #46505D; line-height: 1.65; font-size: 15px; }
+    .modal-actions { display: flex; justify-content: flex-end; margin-top: 20px; }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+    .result-card {
+      min-height: 230px;
+      border-radius: 16px;
+      padding: 18px;
+      color: var(--ink);
+      background: var(--result-color);
+      border: 1px solid color-mix(in srgb, var(--result-color) 70%, #17202A);
+      box-shadow: var(--shadow-soft);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+    .result-card::after { content: ""; position: absolute; right: -45px; bottom: -60px; width: 160px; height: 160px; border-radius: 999px; background: rgba(255,255,255,.18); }
+    .result-card small { position: relative; z-index: 1; opacity: .72; text-transform: uppercase; letter-spacing: .09em; font-size: 10px; font-weight: 820; }
+    .result-card strong { position: relative; z-index: 1; font-family: var(--serif); font-size: 27px; line-height: 1; letter-spacing: -.04em; }
+    .result-card p { position: relative; z-index: 1; margin: 0; line-height: 1.45; font-size: 13px; opacity: .80; }
+    .prompt-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 20px; }
+    .prompt-card { background: rgba(255,255,255,.72); border: 1px solid var(--line); border-radius: 20px; padding: 16px; color: #404B58; line-height: 1.5; }
+    .almost-list { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+    .almost-pill { border: 1px solid var(--line); background: rgba(255,255,255,.70); border-radius: 999px; padding: 8px 11px; font-weight: 720; color: #404B58; }
+    .results-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+
+    @media (max-width: 1040px) {
+      .hero { grid-template-columns: 1fr; }
+      .board-layout { grid-template-columns: 1fr; }
+      .side-panel { position: static; }
+      .results-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 720px) {
+      .legend { grid-template-columns: 1fr; }
+      .app-shell { width: min(100vw - 20px, 1280px); padding-top: 16px; }
+      .topbar { align-items: flex-start; }
+      .brand-text span { display: none; }
+      .toolbar { grid-template-columns: 1fr; }
+      .step-head { grid-template-columns: 1fr; }
+      .progress-labels span { font-size: 9px; }
+      .tile-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+      .value-tile { min-height: 146px; border-radius: 10px; }
+      .tile-inner, .tile-face { min-height: 146px; border-radius: 10px; }
+      .tile-face { padding: 11px; }
+      .value-tile strong { font-size: 18px; }
+      .tile-back p { font-size: 13.2px; line-height: 1.32; padding: 20px 15px 28px; }
+      .results-grid, .prompt-grid { grid-template-columns: 1fr; }
+      .hero-copy { padding: 28px; }
+      .hero-steps { padding: 18px; }
+      .top-actions .btn.ghost { display: none; }
+    }
+    @media print {
+      body { background: #fff; }
+      .topbar, .results-actions, .progress-box, .prompt-grid, .almost-list { display: none !important; }
+      .app-shell { width: 100%; padding: 0; }
+      .panel { box-shadow: none; border: none; background: #fff; }
+      .results-grid { grid-template-columns: repeat(2, 1fr); }
+      .result-card { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="compass-mark">✦</div>
+        <div class="brand-text">
+          <strong>Your Inner Compass</strong>
+          <span>Discover Your True North</span>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="btn ghost" id="resumeBtn">Resume</button>
+        <button class="btn ghost" id="resetBtn">Reset</button>
+      </div>
+    </header>
+
+    <section id="welcomeScreen" class="screen active">
+      <div class="hero">
+        <div class="hero-copy panel">
+          <div class="eyebrow">Interactive values exercise</div>
+          <h1>Your Inner Compass</h1>
+          <div class="subtitle">Discover Your True North</div>
+          <div class="byline">A Personal Values Exercise by Victoria Eliseeva</div>
+          <p class="intro-text">
+            This exercise helps you identify the values that act as your inner compass — the principles that guide your decisions, relationships, work, and life. You will start with 100 values and narrow them down through a fast, visual tile-based sorting process.
+          </p>
+          <button class="btn big" id="startBtn">Start exercise</button>
+        </div>
+        <div class="hero-steps panel">
+          <div class="mini-card" style="--card-color:#9BC0CC"><span>Step 1</span><strong>Clear the Noise</strong><p>Remove the values that are clearly not important for you. They fade out like discarded tiles.</p></div>
+          <div class="mini-card" style="--card-color:#C97872"><span>Step 2</span><strong>Find What Matters</strong><p>From what remains, select up to 30 values that feel meaningful.</p></div>
+          <div class="mini-card" style="--card-color:#4482A3"><span>Step 3</span><strong>Choose Your Anchors</strong><p>From your shortlist, choose the final 5 values that feel most essential.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="exerciseScreen" class="screen">
+      <div class="progress-box panel">
+        <div id="progressSteps" class="progress-steps"></div>
+        <div id="progressLabels" class="progress-labels"></div>
+      </div>
+
+      <div class="step-head">
+        <div>
+          <div class="eyebrow" id="stepEyebrow">Step</div>
+          <h2 id="stepTitle">Clear the Noise</h2>
+          <p id="stepInstruction">Click values that are clearly not important. They will fade out. When you complete the round, they disappear.</p>
+        </div>
+        <button class="btn secondary" id="backBtn">← Back</button>
+      </div>
+
+      <div class="board-layout">
+        <div class="board-panel panel">
+          <div class="toolbar">
+            <input id="searchInput" class="input" type="search" placeholder="Search values..." />
+            <select id="categorySelect" class="select"></select>
+            <select id="sortSelect" class="select">
+              <option value="mixed">Mixed order</option>
+              <option value="category">Sort by category</option>
+            </select>
+            <button class="btn secondary" id="shuffleBtn">Mix again</button>
+            <button class="btn secondary" id="toggleHiddenBtn">Hide eliminated</button>
+          </div>
+          <div id="tileGrid" class="tile-grid"></div>
+        </div>
+
+        <aside class="side-panel panel">
+          <div class="stats-grid">
+            <div class="stat"><span id="primaryStatLabel">Remaining</span><strong id="primaryStat">100</strong></div>
+            <div class="stat"><span id="secondaryStatLabel">Eliminated</span><strong id="secondaryStat">0</strong></div>
+          </div>
+          <div class="round-card">
+            <h3 id="roundCardTitle">How to play</h3>
+            <p id="roundCardText">Treat this like a values Mahjong board. Move quickly. Click what is clearly not you. Use the small “?” on a tile to read its definition.</p>
+            <div class="small-note" id="roundNote"></div>
+          </div>
+          <div class="side-actions">
+            <button class="btn success" id="completeBtn">Complete round</button>
+            <button class="btn secondary" id="undoBtn">Undo last action</button>
+            <button class="btn ghost" id="clearRoundBtn">Clear current selections</button>
+          </div>
+          <div class="round-card">
+            <h3>Categories</h3>
+            <div id="legend" class="legend"></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="resultsScreen" class="screen">
+      <div class="step-head">
+        <div>
+          <div class="eyebrow">Results</div>
+          <h2>Your True North</h2>
+          <p>Your final 5 values are the principles that feel most essential right now. Use them as decision filters, reflection anchors, and a practical guide for how you want to live.</p>
+        </div>
+        <button class="btn secondary" id="resultsBackBtn">← Back to Top 5</button>
+      </div>
+      <div class="panel board-panel">
+        <div id="resultsGrid" class="results-grid"></div>
+        <div id="almostSection"></div>
+        <div class="prompt-grid">
+          <div class="prompt-card">Where is this value already alive in your life?</div>
+          <div class="prompt-card">Where are you currently compromising this value?</div>
+          <div class="prompt-card">What decision would become clearer if you honored this value more?</div>
+          <div class="prompt-card">What is one small action that would bring this value into your week?</div>
+        </div>
+        <div class="results-actions">
+          <button class="btn" id="copyResultsBtn">Copy results</button>
+          <button class="btn secondary" id="downloadResultsBtn">Export data</button>
+          <button class="btn secondary" id="printResultsBtn">Print results</button>
+          <button class="btn ghost" id="restartBtn">Restart exercise</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <div id="modalBackdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal">
+      <div class="modal-top"></div>
+      <div class="modal-body">
+        <span class="cat-pill" id="modalCategory"></span>
+        <h3 id="modalTitle"></h3>
+        <p id="modalDescription"></p>
+        <div class="modal-actions"><button class="btn secondary" id="modalCloseBtn">Close</button></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const VALUES = [
+  {
+    "id": "self-awareness",
+    "category": "Awareness",
+    "name": "Self-Awareness",
+    "description": "Recognizing your thoughts, emotions, motives, patterns, and needs.",
+    "color": "#9BC0CC"
+  },
+  {
+    "id": "insight",
+    "category": "Awareness",
+    "name": "Insight",
+    "description": "Gaining clarity through reflection, introspection, and honest self-inquiry.",
+    "color": "#9BC0CC"
+  },
+  {
+    "id": "curiosity",
+    "category": "Awareness",
+    "name": "Curiosity",
+    "description": "Maintaining a genuine desire to explore, ask questions, and understand more deeply.",
+    "color": "#9BC0CC"
+  },
+  {
+    "id": "learning",
+    "category": "Awareness",
+    "name": "Learning",
+    "description": "Valuing continuous education, skill-building, and discovery throughout life.",
+    "color": "#9BC0CC"
+  },
+  {
+    "id": "wisdom",
+    "category": "Awareness",
+    "name": "Wisdom",
+    "description": "Applying understanding, judgment, and lived experience with depth and perspective.",
+    "color": "#9BC0CC"
+  },
+  {
+    "id": "open-mindedness",
+    "category": "Awareness",
+    "name": "Open-Mindedness",
+    "description": "Staying receptive to new ideas, viewpoints, and ways of seeing the world.",
+    "color": "#9BC0CC"
+  },
+  {
+    "id": "growth-mindset",
+    "category": "Awareness",
+    "name": "Growth Mindset",
+    "description": "Believing that abilities and character can develop through effort, feedback, and practice.",
+    "color": "#9BC0CC"
+  },
+  {
+    "id": "mindfulness",
+    "category": "Awareness",
+    "name": "Mindfulness",
+    "description": "Being present and aware in the moment without rushing, numbing, or judging.",
+    "color": "#9BC0CC"
+  },
+  {
+    "id": "self-acceptance",
+    "category": "Awareness",
+    "name": "Self-Acceptance",
+    "description": "Embracing who you are while still allowing space for growth.",
+    "color": "#9BC0CC"
+  },
+  {
+    "id": "balance",
+    "category": "Awareness",
+    "name": "Balance",
+    "description": "Creating steadiness between ambition and rest, giving and receiving, action and reflection.",
+    "color": "#9BC0CC"
+  },
+  {
+    "id": "adaptability",
+    "category": "Awareness",
+    "name": "Adaptability",
+    "description": "Adjusting constructively to change, uncertainty, and new information.",
+    "color": "#9BC0CC"
+  },
+  {
+    "id": "discernment",
+    "category": "Awareness",
+    "name": "Discernment",
+    "description": "Choosing wisely by separating what is meaningful from what is distracting or misaligned.",
+    "color": "#9BC0CC"
+  },
+  {
+    "id": "solitude",
+    "category": "Awareness",
+    "name": "Solitude",
+    "description": "Valuing quiet, time alone, and inner space as sources of clarity and renewal.",
+    "color": "#9BC0CC"
+  },
+  {
+    "id": "authenticity",
+    "category": "True Self",
+    "name": "Authenticity",
+    "description": "Living in alignment with your true self rather than performing for approval.",
+    "color": "#FFE4D2"
+  },
+  {
+    "id": "integrity",
+    "category": "True Self",
+    "name": "Integrity",
+    "description": "Acting consistently with your principles, even when it is inconvenient.",
+    "color": "#FFE4D2"
+  },
+  {
+    "id": "courage",
+    "category": "True Self",
+    "name": "Courage",
+    "description": "Facing fear, uncertainty, or discomfort in service of what matters.",
+    "color": "#FFE4D2"
+  },
+  {
+    "id": "vulnerability",
+    "category": "True Self",
+    "name": "Vulnerability",
+    "description": "Allowing others to see your honest feelings, needs, and imperfections.",
+    "color": "#FFE4D2"
+  },
+  {
+    "id": "self-expression",
+    "category": "True Self",
+    "name": "Self-Expression",
+    "description": "Expressing your thoughts, feelings, creativity, and identity openly and authentically.",
+    "color": "#FFE4D2"
+  },
+  {
+    "id": "self-respect",
+    "category": "True Self",
+    "name": "Self-Respect",
+    "description": "Honoring your worth through boundaries, standards, and self-trust.",
+    "color": "#FFE4D2"
+  },
+  {
+    "id": "freedom",
+    "category": "True Self",
+    "name": "Freedom",
+    "description": "Valuing the ability to choose your path and live without unnecessary constraint.",
+    "color": "#FFE4D2"
+  },
+  {
+    "id": "autonomy",
+    "category": "True Self",
+    "name": "Autonomy",
+    "description": "Directing your own life through independent thought, choice, and responsibility.",
+    "color": "#FFE4D2"
+  },
+  {
+    "id": "commitment",
+    "category": "True Self",
+    "name": "Commitment",
+    "description": "Staying devoted to what you have chosen, especially when effort is required.",
+    "color": "#FFE4D2"
+  },
+  {
+    "id": "empowerment",
+    "category": "True Self",
+    "name": "Empowerment",
+    "description": "Building the confidence and capacity to shape your own life.",
+    "color": "#FFE4D2"
+  },
+  {
+    "id": "adventure",
+    "category": "True Self",
+    "name": "Adventure",
+    "description": "Seeking new experiences, exploration, and the aliveness that comes from discovery.",
+    "color": "#FFE4D2"
+  },
+  {
+    "id": "boundaries",
+    "category": "True Self",
+    "name": "Boundaries",
+    "description": "Knowing what is yours to carry, protect, accept, or decline.",
+    "color": "#FFE4D2"
+  },
+  {
+    "id": "movement",
+    "category": "Vitality",
+    "name": "Movement",
+    "description": "Valuing physical activity, strength, and the joy of living through the body.",
+    "color": "#E68A58"
+  },
+  {
+    "id": "vitality",
+    "category": "Vitality",
+    "name": "Vitality",
+    "description": "Nurturing your physical energy, health, and capacity to feel fully alive.",
+    "color": "#E68A58"
+  },
+  {
+    "id": "self-care",
+    "category": "Vitality",
+    "name": "Self-Care",
+    "description": "Protecting your physical, emotional, and mental well-being as a priority.",
+    "color": "#E68A58"
+  },
+  {
+    "id": "security",
+    "category": "Vitality",
+    "name": "Security",
+    "description": "Prioritizing safety, stability, and the resources needed for peace of mind.",
+    "color": "#E68A58"
+  },
+  {
+    "id": "prosperity",
+    "category": "Vitality",
+    "name": "Prosperity",
+    "description": "Valuing material stability, abundance, and the resources to live with freedom and ease.",
+    "color": "#E68A58"
+  },
+  {
+    "id": "resilience",
+    "category": "Vitality",
+    "name": "Resilience",
+    "description": "Recovering from setbacks with strength, flexibility, and perspective.",
+    "color": "#E68A58"
+  },
+  {
+    "id": "discipline",
+    "category": "Vitality",
+    "name": "Discipline",
+    "description": "Practicing self-control and consistency in pursuit of meaningful goals.",
+    "color": "#E68A58"
+  },
+  {
+    "id": "determination",
+    "category": "Vitality",
+    "name": "Determination",
+    "description": "Continuing with focused effort despite obstacles, delays, or difficulty.",
+    "color": "#E68A58"
+  },
+  {
+    "id": "patience",
+    "category": "Vitality",
+    "name": "Patience",
+    "description": "Allowing time, uncertainty, and slow progress without losing steadiness.",
+    "color": "#E68A58"
+  },
+  {
+    "id": "hope",
+    "category": "Vitality",
+    "name": "Hope",
+    "description": "Believing that positive change remains possible, even in difficult moments.",
+    "color": "#E68A58"
+  },
+  {
+    "id": "optimism",
+    "category": "Vitality",
+    "name": "Optimism",
+    "description": "Looking for constructive possibilities without denying reality.",
+    "color": "#E68A58"
+  },
+  {
+    "id": "joy",
+    "category": "Vitality",
+    "name": "Joy",
+    "description": "Making space for happiness, pleasure, celebration, and lightness.",
+    "color": "#E68A58"
+  },
+  {
+    "id": "playfulness",
+    "category": "Vitality",
+    "name": "Playfulness",
+    "description": "Bringing spontaneity, humor, and creative ease into life and relationships.",
+    "color": "#E68A58"
+  },
+  {
+    "id": "serenity",
+    "category": "Vitality",
+    "name": "Serenity",
+    "description": "Cultivating calm, inner peace, and freedom from unnecessary agitation.",
+    "color": "#E68A58"
+  },
+  {
+    "id": "emotional-intelligence",
+    "category": "Vitality",
+    "name": "Emotional Intelligence",
+    "description": "Understanding and navigating emotions in yourself and others.",
+    "color": "#E68A58"
+  },
+  {
+    "id": "emotional-balance",
+    "category": "Vitality",
+    "name": "Emotional Balance",
+    "description": "Holding the full range of feelings without being ruled by them.",
+    "color": "#E68A58"
+  },
+  {
+    "id": "gratitude",
+    "category": "Vitality",
+    "name": "Gratitude",
+    "description": "Noticing and appreciating what is already good, supportive, or meaningful.",
+    "color": "#E68A58"
+  },
+  {
+    "id": "love",
+    "category": "Love",
+    "name": "Love",
+    "description": "Offering deep care, warmth, and devotion toward yourself and others.",
+    "color": "#C97872"
+  },
+  {
+    "id": "compassion",
+    "category": "Love",
+    "name": "Compassion",
+    "description": "Responding to suffering with tenderness, concern, and a desire to help.",
+    "color": "#C97872"
+  },
+  {
+    "id": "empathy",
+    "category": "Love",
+    "name": "Empathy",
+    "description": "Understanding and sharing another person’s emotional experience.",
+    "color": "#C97872"
+  },
+  {
+    "id": "kindness",
+    "category": "Love",
+    "name": "Kindness",
+    "description": "Showing warmth, consideration, and generosity in everyday interactions.",
+    "color": "#C97872"
+  },
+  {
+    "id": "caregiving",
+    "category": "Love",
+    "name": "Caregiving",
+    "description": "Actively tending to the needs, dignity, and well-being of others.",
+    "color": "#C97872"
+  },
+  {
+    "id": "respect",
+    "category": "Love",
+    "name": "Respect",
+    "description": "Honoring the dignity, boundaries, and individuality of every person.",
+    "color": "#C97872"
+  },
+  {
+    "id": "honesty",
+    "category": "Love",
+    "name": "Honesty",
+    "description": "Being truthful, genuine, and clear in your words, choices, and relationships.",
+    "color": "#C97872"
+  },
+  {
+    "id": "reliability",
+    "category": "Love",
+    "name": "Reliability",
+    "description": "Showing up consistently and following through so others can count on you.",
+    "color": "#C97872"
+  },
+  {
+    "id": "forgiveness",
+    "category": "Love",
+    "name": "Forgiveness",
+    "description": "Letting go of resentment when healing, learning, or release is possible.",
+    "color": "#C97872"
+  },
+  {
+    "id": "generosity",
+    "category": "Love",
+    "name": "Generosity",
+    "description": "Sharing time, attention, resources, and care without excessive calculation.",
+    "color": "#C97872"
+  },
+  {
+    "id": "support",
+    "category": "Love",
+    "name": "Support",
+    "description": "Standing beside others with encouragement, practical help, and belief in their growth.",
+    "color": "#C97872"
+  },
+  {
+    "id": "loyalty",
+    "category": "Love",
+    "name": "Loyalty",
+    "description": "Remaining faithful to meaningful bonds, commitments, and trusted relationships.",
+    "color": "#C97872"
+  },
+  {
+    "id": "family",
+    "category": "Belonging",
+    "name": "Family",
+    "description": "Valuing the bonds, care, history, and responsibilities of family life.",
+    "color": "#E8B8AC"
+  },
+  {
+    "id": "belonging",
+    "category": "Belonging",
+    "name": "Belonging",
+    "description": "Feeling rooted, accepted, and meaningfully connected to people or place.",
+    "color": "#E8B8AC"
+  },
+  {
+    "id": "community",
+    "category": "Belonging",
+    "name": "Community",
+    "description": "Building and participating in supportive networks of shared life.",
+    "color": "#E8B8AC"
+  },
+  {
+    "id": "friendship",
+    "category": "Belonging",
+    "name": "Friendship",
+    "description": "Nurturing chosen relationships based on affection, trust, and mutual care.",
+    "color": "#E8B8AC"
+  },
+  {
+    "id": "home",
+    "category": "Belonging",
+    "name": "Home",
+    "description": "Creating a place or way of living that feels safe, grounded, and yours.",
+    "color": "#E8B8AC"
+  },
+  {
+    "id": "tradition",
+    "category": "Belonging",
+    "name": "Tradition",
+    "description": "Honoring meaningful practices, rituals, and wisdom passed across time.",
+    "color": "#E8B8AC"
+  },
+  {
+    "id": "acceptance-of-others",
+    "category": "Belonging",
+    "name": "Acceptance of Others",
+    "description": "Allowing people to be who they are without forcing sameness.",
+    "color": "#E8B8AC"
+  },
+  {
+    "id": "inclusivity",
+    "category": "Belonging",
+    "name": "Inclusivity",
+    "description": "Making space for different people to feel welcomed and valued.",
+    "color": "#E8B8AC"
+  },
+  {
+    "id": "collaboration",
+    "category": "Belonging",
+    "name": "Collaboration",
+    "description": "Working with others toward shared goals through mutual contribution.",
+    "color": "#E8B8AC"
+  },
+  {
+    "id": "hospitality",
+    "category": "Belonging",
+    "name": "Hospitality",
+    "description": "Creating warmth, welcome, and generosity for others in your space.",
+    "color": "#E8B8AC"
+  },
+  {
+    "id": "solidarity",
+    "category": "Belonging",
+    "name": "Solidarity",
+    "description": "Standing with others in shared struggle, purpose, or responsibility.",
+    "color": "#E8B8AC"
+  },
+  {
+    "id": "justice",
+    "category": "Citizenship",
+    "name": "Justice",
+    "description": "Upholding what is right, ethical, and fair in systems and relationships.",
+    "color": "#D6A17F"
+  },
+  {
+    "id": "equality",
+    "category": "Citizenship",
+    "name": "Equality",
+    "description": "Believing people deserve equal dignity, rights, and opportunity.",
+    "color": "#D6A17F"
+  },
+  {
+    "id": "fairness",
+    "category": "Citizenship",
+    "name": "Fairness",
+    "description": "Making decisions with impartiality, balance, and consideration for all affected.",
+    "color": "#D6A17F"
+  },
+  {
+    "id": "responsibility",
+    "category": "Citizenship",
+    "name": "Responsibility",
+    "description": "Owning your duties, actions, impact, promises, and obligations to others.",
+    "color": "#D6A17F"
+  },
+  {
+    "id": "civic-duty",
+    "category": "Citizenship",
+    "name": "Civic Duty",
+    "description": "Participating constructively in the society and institutions you belong to.",
+    "color": "#D6A17F"
+  },
+  {
+    "id": "patriotism",
+    "category": "Citizenship",
+    "name": "Patriotism",
+    "description": "Feeling care, pride, and responsibility for your country or national community.",
+    "color": "#D6A17F"
+  },
+  {
+    "id": "heritage",
+    "category": "Citizenship",
+    "name": "Heritage",
+    "description": "Valuing the cultural, historical, and ancestral roots that shape identity.",
+    "color": "#D6A17F"
+  },
+  {
+    "id": "cultural-sensitivity",
+    "category": "Citizenship",
+    "name": "Cultural Sensitivity",
+    "description": "Respecting and learning from different cultures, traditions, and backgrounds.",
+    "color": "#D6A17F"
+  },
+  {
+    "id": "tolerance",
+    "category": "Citizenship",
+    "name": "Tolerance",
+    "description": "Allowing differences in belief, identity, and lifestyle without hostility.",
+    "color": "#D6A17F"
+  },
+  {
+    "id": "peace",
+    "category": "Citizenship",
+    "name": "Peace",
+    "description": "Valuing nonviolence, reconciliation, and the reduction of unnecessary conflict.",
+    "color": "#D6A17F"
+  },
+  {
+    "id": "social-impact",
+    "category": "Citizenship",
+    "name": "Social Impact",
+    "description": "Wanting your actions to improve society beyond your immediate circle.",
+    "color": "#D6A17F"
+  },
+  {
+    "id": "nature",
+    "category": "Earth",
+    "name": "Nature",
+    "description": "Feeling connection, awe, and renewal through the natural world.",
+    "color": "#818546"
+  },
+  {
+    "id": "love-of-animals",
+    "category": "Earth",
+    "name": "Love of Animals",
+    "description": "Caring for animals and recognizing their dignity, needs, and sentience.",
+    "color": "#818546"
+  },
+  {
+    "id": "sustainability",
+    "category": "Earth",
+    "name": "Sustainability",
+    "description": "Choosing practices that preserve long-term well-being for people and planet.",
+    "color": "#818546"
+  },
+  {
+    "id": "wilderness",
+    "category": "Earth",
+    "name": "Wilderness",
+    "description": "Valuing wild places, untamed landscapes, and freedom from overdevelopment.",
+    "color": "#818546"
+  },
+  {
+    "id": "beauty",
+    "category": "Earth",
+    "name": "Beauty",
+    "description": "Being moved by aesthetics, harmony, and the sensory richness of life.",
+    "color": "#818546"
+  },
+  {
+    "id": "groundedness",
+    "category": "Earth",
+    "name": "Groundedness",
+    "description": "Feeling rooted through simplicity, embodiment, nature, and everyday reality.",
+    "color": "#818546"
+  },
+  {
+    "id": "harmony",
+    "category": "Earth",
+    "name": "Harmony",
+    "description": "Seeking respectful coexistence between people, animals, nature, and place.",
+    "color": "#818546"
+  },
+  {
+    "id": "simplicity",
+    "category": "Earth",
+    "name": "Simplicity",
+    "description": "Choosing less clutter, fewer distractions, and a more essential way of living.",
+    "color": "#818546"
+  },
+  {
+    "id": "purpose",
+    "category": "Purpose",
+    "name": "Purpose",
+    "description": "Living with a sense of direction, intention, and something meaningful to serve.",
+    "color": "#99B7A4"
+  },
+  {
+    "id": "spirituality",
+    "category": "Purpose",
+    "name": "Spirituality",
+    "description": "Seeking connection with something larger than the self, whether sacred or deeply meaningful.",
+    "color": "#99B7A4"
+  },
+  {
+    "id": "reverence",
+    "category": "Purpose",
+    "name": "Reverence",
+    "description": "Holding deep awe and respect for life, mystery, and what feels sacred or greater than yourself.",
+    "color": "#99B7A4"
+  },
+  {
+    "id": "contribution",
+    "category": "Purpose",
+    "name": "Contribution",
+    "description": "Adding meaningful value to people, communities, or something larger than yourself.",
+    "color": "#99B7A4"
+  },
+  {
+    "id": "impact",
+    "category": "Purpose",
+    "name": "Impact",
+    "description": "Creating meaningful positive effects through your choices and work.",
+    "color": "#99B7A4"
+  },
+  {
+    "id": "legacy",
+    "category": "Purpose",
+    "name": "Legacy",
+    "description": "Building something that continues to matter beyond the present moment.",
+    "color": "#99B7A4"
+  },
+  {
+    "id": "creativity",
+    "category": "Mastery",
+    "name": "Creativity",
+    "description": "Generating original ideas, expression, beauty, or new possibilities.",
+    "color": "#4482A3"
+  },
+  {
+    "id": "innovation",
+    "category": "Mastery",
+    "name": "Innovation",
+    "description": "Improving things through new approaches, experiments, and better solutions.",
+    "color": "#4482A3"
+  },
+  {
+    "id": "imagination",
+    "category": "Mastery",
+    "name": "Imagination",
+    "description": "Envisioning what could exist beyond current constraints or assumptions.",
+    "color": "#4482A3"
+  },
+  {
+    "id": "resourcefulness",
+    "category": "Mastery",
+    "name": "Resourcefulness",
+    "description": "Finding effective ways forward with the tools, people, and options available.",
+    "color": "#4482A3"
+  },
+  {
+    "id": "diligence",
+    "category": "Mastery",
+    "name": "Diligence",
+    "description": "Applying careful, persistent effort to work that matters.",
+    "color": "#4482A3"
+  },
+  {
+    "id": "efficiency",
+    "category": "Mastery",
+    "name": "Efficiency",
+    "description": "Using time, energy, and resources well without unnecessary waste.",
+    "color": "#4482A3"
+  },
+  {
+    "id": "pragmatism",
+    "category": "Mastery",
+    "name": "Pragmatism",
+    "description": "Focusing on what works in practice, not only what sounds ideal.",
+    "color": "#4482A3"
+  },
+  {
+    "id": "excellence",
+    "category": "Mastery",
+    "name": "Excellence",
+    "description": "Pursuing high standards and meaningful mastery in what you do.",
+    "color": "#4482A3"
+  },
+  {
+    "id": "quality",
+    "category": "Mastery",
+    "name": "Quality",
+    "description": "Valuing craft, care, accuracy, and attention to detail.",
+    "color": "#4482A3"
+  },
+  {
+    "id": "progress",
+    "category": "Mastery",
+    "name": "Progress",
+    "description": "Moving steadily toward improvement, development, and better outcomes.",
+    "color": "#4482A3"
+  }
+];
+    const CATEGORIES = [
+  {
+    "name": "Awareness",
+    "color": "#9BC0CC"
+  },
+  {
+    "name": "True Self",
+    "color": "#FFE4D2"
+  },
+  {
+    "name": "Vitality",
+    "color": "#E68A58"
+  },
+  {
+    "name": "Love",
+    "color": "#C97872"
+  },
+  {
+    "name": "Belonging",
+    "color": "#E8B8AC"
+  },
+  {
+    "name": "Citizenship",
+    "color": "#D6A17F"
+  },
+  {
+    "name": "Earth",
+    "color": "#818546"
+  },
+  {
+    "name": "Purpose",
+    "color": "#99B7A4"
+  },
+  {
+    "name": "Mastery",
+    "color": "#4482A3"
+  }
+];
+    const STORAGE_KEY = 'yourInnerCompassTileExercise:v8';
+
+    const STEPS = [
+      { key: 'welcome', label: 'Welcome' },
+      {
+        key: 'clear', label: 'Clear the Noise', eyebrow: 'Step 1 of 3',
+        title: 'Clear the Noise',
+        instruction: 'Click values that are clearly not important. They fade out and are marked “Not important”. Use the small “?” on a tile to read its definition.',
+        mode: 'eliminate', primaryLabel: 'Remaining', secondaryLabel: 'Eliminated',
+        note: 'Complete whenever you have removed the obvious no’s. You can also proceed without eliminating anything.',
+        roundTitle: 'Move quickly',
+        roundText: 'This round is not about perfection. It is about clearing what is clearly not you, so the meaningful values become easier to see. Click an eliminated tile again if you want to bring it back.'
+      },
+      {
+        key: 'top30', label: 'Find What Matters', eyebrow: 'Step 2 of 3',
+        title: 'Find What Matters',
+        instruction: 'From the remaining values, select up to 30 that feel genuinely important or alive for you right now.',
+        mode: 'select', target: 30, min: 10, field: 'top30', primaryLabel: 'Selected', secondaryLabel: 'Available',
+        note: 'Select at least 10 and up to 30 values to continue.',
+        roundTitle: 'Choose your strong yes',
+        roundText: 'Do not overthink the perfect list yet. Click the values that feel meaningful enough to keep in the exercise.'
+      },
+      {
+        key: 'top5', label: 'Choose Your Anchors', eyebrow: 'Step 3 of 3',
+        title: 'Choose Your Anchors',
+        instruction: 'From your shortlisted values, choose the final 5 values that feel most essential — the ones you want to use as your anchors.',
+        mode: 'select', target: 5, min: 5, field: 'top5', primaryLabel: 'Selected', secondaryLabel: 'Available',
+        note: 'Select exactly 5 values to see your results.',
+        roundTitle: 'Make the final cut',
+        roundText: 'These final 5 are not the only values that matter. They are the values that feel most central to your current chapter.'
+      },
+      { key: 'results', label: 'Results' }
+    ];
+
+    const defaultState = {
+      step: 'welcome',
+      eliminated: [],
+      top30: [],
+      top5: [],
+      search: '',
+      category: 'all',
+      hideEliminated: false,
+      sortMode: 'mixed',
+      shuffleSeed: 314159,
+      flipped: [],
+      lastAction: null
+    };
+
+    let state = loadState();
+
+    const $ = (id) => document.getElementById(id);
+    const byId = new Map(VALUES.map(v => [v.id, v]));
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) return { ...defaultState };
+        return { ...defaultState, ...JSON.parse(saved) };
+      } catch (e) {
+        return { ...defaultState };
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function stepIndex(key = state.step) {
+      return STEPS.findIndex(s => s.key === key);
+    }
+
+    function currentStep() {
+      return STEPS.find(s => s.key === state.step) || STEPS[0];
+    }
+
+    function sourceFor(key = state.step) {
+      if (key === 'clear') return VALUES;
+      if (key === 'top30') return VALUES.filter(v => !state.eliminated.includes(v.id));
+      if (key === 'top5') return VALUES.filter(v => state.top30.includes(v.id));
+      if (key === 'results') return VALUES.filter(v => state.top5.includes(v.id));
+      return VALUES;
+    }
+
+    function fieldForStep(key = state.step) {
+      if (key === 'clear') return 'eliminated';
+      const step = STEPS.find(s => s.key === key);
+      return step && step.field;
+    }
+
+    function selectionFor(key = state.step) {
+      const field = fieldForStep(key);
+      return field ? state[field] : [];
+    }
+
+    function targetFor(step = currentStep()) {
+      if (!step.target) return null;
+      return Math.min(step.target, sourceFor(step.key).length);
+    }
+
+    function minFor(step = currentStep()) {
+      if (!step.min) return 0;
+      return Math.min(step.min, sourceFor(step.key).length);
+    }
+
+    function pruneDownstream(fromKey) {
+      const remainingIds = sourceFor('top30').map(v => v.id);
+      state.top30 = state.top30.filter(id => remainingIds.includes(id));
+      const top30Ids = new Set(state.top30);
+      state.top5 = state.top5.filter(id => top30Ids.has(id));
+    }
+
+    function showScreen(name) {
+      $('welcomeScreen').classList.toggle('active', name === 'welcome');
+      $('exerciseScreen').classList.toggle('active', ['clear','top30','top5'].includes(name));
+      $('resultsScreen').classList.toggle('active', name === 'results');
+    }
+
+    function render() {
+      saveState();
+      showScreen(state.step);
+      renderProgress();
+      if (['clear','top30','top5'].includes(state.step)) renderExercise();
+      if (state.step === 'results') renderResults();
+    }
+
+    function renderProgress() {
+      const progressSteps = $('progressSteps');
+      const progressLabels = $('progressLabels');
+      if (!progressSteps || !progressLabels) return;
+      const active = stepIndex(state.step);
+      const visible = STEPS.filter(s => s.key !== 'welcome');
+      progressSteps.innerHTML = visible.map(s => {
+        const idx = stepIndex(s.key);
+        const cls = idx < active ? 'done' : idx === active ? 'active' : '';
+        return `<div class="progress-step ${cls}"></div>`;
+      }).join('');
+      progressLabels.innerHTML = visible.map(s => {
+        const idx = stepIndex(s.key);
+        return `<span class="${idx === active ? 'active' : ''}">${escapeHtml(s.label)}</span>`;
+      }).join('');
+    }
+
+    function renderExercise() {
+      const step = currentStep();
+      const source = sourceFor();
+      const selected = selectionFor();
+      const target = targetFor(step);
+      const min = minFor(step);
+
+      $('stepEyebrow').textContent = step.eyebrow;
+      $('stepTitle').textContent = step.title;
+      $('stepInstruction').textContent = step.instruction;
+      $('primaryStatLabel').textContent = step.primaryLabel;
+      $('secondaryStatLabel').textContent = step.secondaryLabel;
+      $('roundCardTitle').textContent = step.roundTitle;
+      $('roundCardText').textContent = step.roundText;
+      $('roundNote').textContent = buildNote(step, selected.length, source.length, target, min);
+      $('toggleHiddenBtn').classList.toggle('hidden', step.key !== 'clear');
+      $('toggleHiddenBtn').textContent = state.hideEliminated ? 'Show eliminated' : 'Hide eliminated';
+      $('shuffleBtn').classList.toggle('hidden', state.sortMode !== 'mixed');
+      $('searchInput').value = state.search;
+      $('sortSelect').value = state.sortMode;
+
+      if (step.key === 'clear') {
+        const remaining = VALUES.length - state.eliminated.length;
+        $('primaryStat').textContent = remaining;
+        $('secondaryStat').textContent = state.eliminated.length;
+      } else {
+        $('primaryStat').textContent = `${selected.length}${target ? ' / ' + target : ''}`;
+        $('secondaryStat').textContent = source.length;
+      }
+
+      $('completeBtn').textContent = step.key === 'top5' ? 'See results' : 'Complete round';
+      $('completeBtn').disabled = !canComplete(step);
+      $('undoBtn').disabled = !state.lastAction;
+      $('backBtn').disabled = state.step === 'clear';
+
+      renderCategorySelect(source);
+      renderLegend();
+      renderTiles(source, step);
+    }
+
+    function buildNote(step, selectedCount, sourceCount, target, min) {
+      if (step.key === 'clear') return step.note;
+      if (sourceCount === 0) return 'No values available in this round. Go back and adjust the previous round.';
+      if (step.key === 'top30') return `Selected ${selectedCount}. Continue once you have at least ${min}; maximum ${target}.`;
+      return `Selected ${selectedCount} / ${target}. Continue once you have exactly ${target}.`;
+    }
+
+    function canComplete(step = currentStep()) {
+      const source = sourceFor(step.key);
+      if (step.key === 'clear') return source.length - state.eliminated.length >= 5;
+      const selected = selectionFor(step.key).length;
+      const target = targetFor(step);
+      const min = minFor(step);
+      if (step.key === 'top30') return selected >= min && selected <= target;
+      return selected === target;
+    }
+
+    function renderCategorySelect(source) {
+      const categories = Array.from(new Set(source.map(v => v.category)));
+      const current = categories.includes(state.category) ? state.category : 'all';
+      state.category = current;
+      $('categorySelect').innerHTML = [
+        '<option value="all">All categories</option>',
+        ...categories.map(c => `<option value="${escapeAttr(c)}">${escapeHtml(c)}</option>`)
+      ].join('');
+      $('categorySelect').value = state.category;
+    }
+
+    function renderLegend() {
+      $('legend').innerHTML = CATEGORIES.map(c => `
+        <div class="legend-row"><span class="legend-dot" style="--dot:${escapeAttr(c.color)}"></span><span>${escapeHtml(c.name)}</span></div>
+      `).join('');
+    }
+
+    function renderTiles(source, step) {
+      const grid = $('tileGrid');
+      const q = state.search.trim().toLowerCase();
+      let tiles = source.filter(v => {
+        const matchesSearch = !q || `${v.name} ${v.category} ${v.description}`.toLowerCase().includes(q);
+        const matchesCategory = state.category === 'all' || v.category === state.category;
+        const isEliminated = state.eliminated.includes(v.id);
+        const hiddenByRound = step.key === 'clear' && state.hideEliminated && isEliminated;
+        return matchesSearch && matchesCategory && !hiddenByRound;
+      });
+      tiles = orderTiles(tiles);
+
+      if (!tiles.length) {
+        grid.innerHTML = `<div class="round-card" style="grid-column: 1 / -1;"><h3>No tiles visible</h3><p>Try clearing the search, changing the category filter, or showing eliminated tiles.</p></div>`;
+        return;
+      }
+
+      const selection = new Set(selectionFor());
+      const eliminated = new Set(state.eliminated);
+      const flipped = new Set(state.flipped || []);
+      grid.innerHTML = tiles.map(v => {
+        let cls = 'value-tile';
+        let stateLabel = '';
+        if (step.key === 'clear') {
+          if (eliminated.has(v.id)) { cls += ' eliminated'; stateLabel = 'Not important'; }
+        } else {
+          if (selection.has(v.id)) { cls += ' selected'; stateLabel = 'Selected'; }
+        }
+        if (flipped.has(v.id)) cls += ' flipped';
+        return `
+          <button class="${cls}" style="--tile-color:${escapeAttr(v.color)}" data-id="${escapeAttr(v.id)}" aria-label="${escapeAttr(v.name)}">
+            <span class="tile-inner">
+              <span class="tile-face tile-front">
+                <span class="cat-pill">${escapeHtml(v.category)}</span>
+                <strong>${escapeHtml(v.name)}</strong>
+                <span class="state-label">${escapeHtml(stateLabel)}</span>
+                <span class="flip-btn" data-flip="${escapeAttr(v.id)}" aria-label="View definition" title="View meaning">?</span>
+              </span>
+              <span class="tile-face tile-back">
+                <p>${escapeHtml(v.description)}</p>
+                <span class="state-label">${escapeHtml(stateLabel)}</span>
+                <span class="flip-btn back-flip" data-flip="${escapeAttr(v.id)}" aria-label="Back to value" title="Back to value">↩</span>
+              </span>
+            </span>
+          </button>`;
+      }).join('');
+    }
+
+    function orderTiles(items) {
+      const arr = [...items];
+      if (state.sortMode === 'mixed') return seededShuffle(arr, state.shuffleSeed || 1);
+      const categoryRank = new Map(CATEGORIES.map((c, i) => [c.name, i]));
+      return arr.sort((a, b) => {
+        const ca = categoryRank.get(a.category) ?? 999;
+        const cb = categoryRank.get(b.category) ?? 999;
+        if (ca !== cb) return ca - cb;
+        return VALUES.findIndex(v => v.id === a.id) - VALUES.findIndex(v => v.id === b.id);
+      });
+    }
+
+    function seededShuffle(items, seed) {
+      let s = Number(seed) || 1;
+      function rand() {
+        s = (s * 1664525 + 1013904223) >>> 0;
+        return s / 4294967296;
+      }
+      for (let i = items.length - 1; i > 0; i--) {
+        const j = Math.floor(rand() * (i + 1));
+        [items[i], items[j]] = [items[j], items[i]];
+      }
+      return items;
+    }
+
+    function toggleTile(id) {
+      const step = currentStep();
+      if (step.key === 'clear') {
+        setArrayField('eliminated', toggleInArray(state.eliminated, id));
+        render();
+        return;
+      }
+      const field = step.field;
+      const current = state[field];
+      if (current.includes(id)) {
+        setArrayField(field, current.filter(x => x !== id));
+      } else {
+        const max = targetFor(step);
+        if (current.length >= max) {
+          showToast(`You can select only ${max} values in this round.`);
+          return;
+        }
+        setArrayField(field, [...current, id]);
+      }
+      render();
+    }
+
+    function setArrayField(field, next) {
+      state.lastAction = { field, previous: [...state[field]] };
+      state[field] = next;
+    }
+
+    function toggleInArray(arr, id) {
+      return arr.includes(id) ? arr.filter(x => x !== id) : [...arr, id];
+    }
+
+    function completeRound() {
+      const step = currentStep();
+      if (!canComplete(step)) {
+        showToast('Complete the required selection before continuing.');
+        return;
+      }
+      if (step.key === 'clear') {
+        pruneDownstream('clear');
+        state.step = 'top30';
+      } else if (step.key === 'top30') {
+        state.top5 = state.top5.filter(id => state.top30.includes(id));
+        state.step = 'top5';
+      } else if (step.key === 'top5') {
+        state.step = 'results';
+      }
+      state.search = '';
+      state.category = 'all';
+      state.flipped = [];
+      state.lastAction = null;
+      render();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function goBack() {
+      if (state.step === 'top30') state.step = 'clear';
+      else if (state.step === 'top5') state.step = 'top30';
+      else if (state.step === 'results') state.step = 'top5';
+      state.search = '';
+      state.category = 'all';
+      state.flipped = [];
+      state.lastAction = null;
+      render();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function clearCurrentRound() {
+      const field = fieldForStep();
+      if (!field) return;
+      const label = state.step === 'clear' ? 'eliminated values' : 'selected values for this round';
+      if (!confirm(`Clear the ${label}?`)) return;
+      setArrayField(field, []);
+      if (state.step === 'clear') {
+        state.top30 = [];
+        state.top5 = [];
+      } else if (state.step === 'top30') {
+        state.top5 = [];
+      }
+      render();
+    }
+
+    function undoLast() {
+      if (!state.lastAction) return;
+      state[state.lastAction.field] = state.lastAction.previous;
+      state.lastAction = null;
+      render();
+    }
+
+    function resetAll() {
+      if (!confirm('Reset the whole exercise and clear saved progress?')) return;
+      state = { ...defaultState };
+      localStorage.removeItem(STORAGE_KEY);
+      render();
+    }
+
+    function resume() {
+      if (state.step === 'welcome') {
+        const hasProgress = state.eliminated.length || state.top30.length || state.top5.length;
+        state.step = hasProgress ? 'clear' : 'welcome';
+      }
+      render();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function startExercise() {
+      state.step = 'clear';
+      render();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderResults() {
+      const finalValues = sourceFor('results');
+      $('resultsGrid').innerHTML = finalValues.map(v => `
+        <article class="result-card" style="--result-color:${escapeAttr(v.color)}">
+          <small>${escapeHtml(v.category)}</small>
+          <strong>${escapeHtml(v.name)}</strong>
+          <p>${escapeHtml(v.description)}</p>
+        </article>
+      `).join('');
+      $('almostSection').innerHTML = '';
+    }
+
+    function resultsPayload() {
+      const finalValues = sourceFor('results');
+      return {
+        exercise: 'Your Inner Compass',
+        generatedAt: new Date().toISOString(),
+        finalTop5: finalValues.map(compactValue),
+        shortlist: VALUES.filter(v => state.top30.includes(v.id)).map(compactValue)
+      };
+    }
+
+    function compactValue(v) {
+      return { name: v.name, category: v.category, description: v.description };
+    }
+
+    function copyResults() {
+      const payload = resultsPayload();
+      const lines = [
+        'Your Inner Compass — Results',
+        'Discover Your True North',
+        '',
+        'Top 5 values:',
+        ...payload.finalTop5.map((v, i) => `${i + 1}. ${v.name} (${v.category}) — ${v.description}`),
+        '',
+        'Reflection prompts:',
+        '• Where is this value already alive in your life?',
+        '• Where are you currently compromising this value?',
+        '• What decision would become clearer if you honored this value more?',
+        '• What is one small action that would bring this value into your week?'
+      ];
+
+      const text = lines.join('\n');
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text)
+          .then(() => showToast('Results copied to clipboard.'))
+          .catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+      }
+    }
+
+    function fallbackCopy(text) {
+      const area = document.createElement('textarea');
+      area.value = text;
+      area.setAttribute('readonly', '');
+      area.style.position = 'fixed';
+      area.style.left = '-9999px';
+      document.body.appendChild(area);
+      area.select();
+      try {
+        document.execCommand('copy');
+        showToast('Results copied to clipboard.');
+      } catch (e) {
+        showToast('Could not copy results.');
+      }
+      area.remove();
+    }
+
+    function printResults() {
+      const payload = resultsPayload();
+      const valuesHtml = payload.finalTop5.map((v, i) => `
+        <article class="print-card">
+          <div class="print-index">${i + 1}</div>
+          <div>
+            <div class="print-category">${escapeHtml(v.category)}</div>
+            <h2>${escapeHtml(v.name)}</h2>
+            <p>${escapeHtml(v.description)}</p>
+          </div>
+        </article>
+      `).join('');
+
+      const prompts = [
+        'Where is this value already alive in your life?',
+        'Where are you currently compromising this value?',
+        'What decision would become clearer if you honored this value more?',
+        'What is one small action that would bring this value into your week?'
+      ].map(p => `<li>${escapeHtml(p)}</li>`).join('');
+
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) {
+        showToast('Pop-up blocked. Use the browser print option instead.');
+        window.print();
+        return;
+      }
+
+      printWindow.document.write(`<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Your Inner Compass Results</title>
+  <style>
+    @page { size: A4; margin: 18mm; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #17202A;
+      background: #FBF6EA;
+    }
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px;
+      background: #FBF6EA;
+    }
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: .13em;
+      font-size: 11px;
+      font-weight: 800;
+      color: #768E78;
+      margin-bottom: 10px;
+    }
+    h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 52px;
+      line-height: .95;
+      letter-spacing: -.04em;
+      color: #17202A;
+    }
+    .subtitle {
+      margin: 12px 0 30px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-style: italic;
+      font-size: 24px;
+      color: #768E78;
+    }
+    .print-grid {
+      display: grid;
+      gap: 14px;
+      margin-top: 22px;
+    }
+    .print-card {
+      display: grid;
+      grid-template-columns: 44px 1fr;
+      gap: 14px;
+      padding: 18px;
+      border-radius: 16px;
+      background: #FFFFFF;
+      box-shadow: 0 8px 18px rgba(31, 40, 52, .08);
+      break-inside: avoid;
+    }
+    .print-index {
+      width: 38px;
+      height: 38px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background: #99B7A4;
+      font-weight: 900;
+    }
+    .print-category {
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      font-size: 10px;
+      font-weight: 900;
+      color: #657181;
+      margin-bottom: 4px;
+    }
+    h2 {
+      margin: 0 0 6px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 26px;
+      letter-spacing: -.02em;
+    }
+    p {
+      margin: 0;
+      line-height: 1.48;
+      color: #3D4652;
+      font-size: 14.5px;
+    }
+    .prompts {
+      margin-top: 30px;
+      padding: 20px;
+      border-radius: 16px;
+      background: #EBDEC0;
+      break-inside: avoid;
+    }
+    .prompts h3 {
+      margin: 0 0 10px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 24px;
+    }
+    .prompts li {
+      margin: 8px 0;
+      line-height: 1.45;
+    }
+    .note {
+      margin-top: 22px;
+      font-size: 12px;
+      color: #657181;
+    }
+    @media print {
+      body, .page { background: #FFFFFF; }
+      .print-card { box-shadow: none; border: 1px solid #E1D8CB; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="eyebrow">Your Inner Compass</div>
+    <h1>Your True North</h1>
+    <div class="subtitle">Your final top 5 values</div>
+    <section class="print-grid">${valuesHtml}</section>
+    <section class="prompts">
+      <h3>Reflection prompts</h3>
+      <ul>${prompts}</ul>
+    </section>
+    <div class="note">Generated from Your Inner Compass — A Personal Values Exercise by Victoria Eliseeva.</div>
+  </main>
+  <script>
+    window.onload = () => {
+      window.focus();
+      setTimeout(() => window.print(), 250);
+    };
+  <\/script>
+</body>
+</html>`);
+      printWindow.document.close();
+      showToast('Printable results opened in a new tab.');
+    }
+
+    function downloadResults() {
+      const blob = new Blob([JSON.stringify(resultsPayload(), null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'your-inner-compass-results.json';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function openModal(id) {
+      const v = byId.get(id);
+      if (!v) return;
+      document.documentElement.style.setProperty('--modal-color', v.color);
+      $('modalCategory').textContent = v.category;
+      $('modalTitle').textContent = v.name;
+      $('modalDescription').textContent = v.description;
+      $('modalBackdrop').classList.add('active');
+      $('modalBackdrop').setAttribute('aria-hidden', 'false');
+    }
+
+    function closeModal() {
+      $('modalBackdrop').classList.remove('active');
+      $('modalBackdrop').setAttribute('aria-hidden', 'true');
+    }
+
+    function toggleFlip(id) {
+      const current = new Set(state.flipped || []);
+      if (current.has(id)) current.delete(id);
+      else current.add(id);
+      state.flipped = [...current];
+      renderExercise();
+      saveState();
+    }
+
+    function mixAgain() {
+      state.sortMode = 'mixed';
+      state.shuffleSeed = Math.floor(Math.random() * 1000000000) + 1;
+      renderExercise();
+      saveState();
+    }
+
+    function showToast(message) {
+      const toast = $('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove('show'), 2400);
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>'"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[c]));
+    }
+
+    function escapeAttr(value) { return escapeHtml(value); }
+
+    function bindEvents() {
+      $('startBtn').addEventListener('click', startExercise);
+      $('resumeBtn').addEventListener('click', resume);
+      $('resetBtn').addEventListener('click', resetAll);
+      $('backBtn').addEventListener('click', goBack);
+      $('resultsBackBtn').addEventListener('click', goBack);
+      $('completeBtn').addEventListener('click', completeRound);
+      $('undoBtn').addEventListener('click', undoLast);
+      $('clearRoundBtn').addEventListener('click', clearCurrentRound);
+      $('toggleHiddenBtn').addEventListener('click', () => { state.hideEliminated = !state.hideEliminated; render(); });
+      $('sortSelect').addEventListener('change', (e) => { state.sortMode = e.target.value; renderExercise(); saveState(); });
+      $('shuffleBtn').addEventListener('click', mixAgain);
+      $('copyResultsBtn').addEventListener('click', copyResults);
+      $('downloadResultsBtn').addEventListener('click', downloadResults);
+      $('printResultsBtn').addEventListener('click', printResults);
+      $('restartBtn').addEventListener('click', resetAll);
+      $('modalCloseBtn').addEventListener('click', closeModal);
+      $('modalBackdrop').addEventListener('click', (e) => { if (e.target === $('modalBackdrop')) closeModal(); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+      $('searchInput').addEventListener('input', (e) => { state.search = e.target.value; renderExercise(); saveState(); });
+      $('categorySelect').addEventListener('change', (e) => { state.category = e.target.value; renderExercise(); saveState(); });
+      $('tileGrid').addEventListener('click', (e) => {
+        const flip = e.target.closest('[data-flip]');
+        if (flip) { e.stopPropagation(); toggleFlip(flip.getAttribute('data-flip')); return; }
+        const tile = e.target.closest('[data-id]');
+        if (!tile) return;
+        const id = tile.getAttribute('data-id');
+        if ((state.flipped || []).includes(id)) { toggleFlip(id); return; }
+        toggleTile(id);
+      });
+    }
+
+    bindEvents();
+    $('searchInput').value = state.search;
+    render();
+  </script>
+</body>
+</html>
